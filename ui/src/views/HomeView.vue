@@ -29,12 +29,14 @@ import {RouterLink} from 'vue-router'
       <el-row>
         <el-col :span="24">
           <p class="p-10 text-violet-600 text-2xl text-center">
-            This is the playground of the RO-Crate specification described a method of packaging data in a folder, which can be zipped, with any kind of file.
+            This is the playground of the RO-Crate specification described a method of packaging data in a folder, which
+            can be zipped, with any kind of file.
           </p>
           <div class="flex items-center justify-center">
-            <el-button type="primary" color="" size="large">
-              <RouterLink to="/explorer">Start Packaging</RouterLink>
-            </el-button>
+            <RouterLink to="/explorer">
+              <el-button type="primary" color="" size="large">Start Packaging
+              </el-button>
+            </RouterLink>
           </div>
         </el-col>
       </el-row>
