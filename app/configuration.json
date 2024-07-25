@@ -3,7 +3,7 @@
     {
       "name": "sample-crate",
       "path": "/opt/storage/example-crates/example-ro-sample-image-crate/sample-crate",
-      "zip": "example-crates/example-ro-sample-image-crate/download/sample-crate.zip",
+      "zip": "/opt/storage/example-crates/example-ro-sample-image-crate/download/sample-crate.zip",
       "description": "Example crate with lots of little files"
     },
     {

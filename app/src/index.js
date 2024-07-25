@@ -28,7 +28,7 @@ app.get('/example/:name', async (c) => {
     const configuration = await fs.readJson('./configuration.json');
     const example = configuration.examples.find((e) => e.name === c.req.param('name'));
     if (example) {
-        const directoryPath = path.join(process.cwd(), example.path);
+        const directoryPath = path.join(example.path);
 
         // Ensure the directory exists
         if (!fs.existsSync(directoryPath)) {
