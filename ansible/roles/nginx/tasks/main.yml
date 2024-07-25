@@ -1,0 +1,109 @@
+---
+
+
+- name: Ensure snapd is installed.
+  package:
+    name: snapd
+    state: present
+  register: snapd_install
+
+- name: Update snap after install.
+  shell: snap install core; snap refresh core
+  changed_when: true
+  failed_when: false
+  when: snapd_install is changed
+
+- name: Install certbot via snap.
+  snap:
+    name: certbot
+    classic: true
+
+- name: Symlink certbot into place.
+  file:
+    src: /snap/bin/certbot
+    dest: /usr/bin/certbot
+    state: link
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Set Certbot script variable.
+  set_fact:
+    certbot_script: /usr/bin/certbot
+
+- name: Install nginx
+  apt: 
+    name: nginx 
+    state: latest
+
+- name: stop nginx
+  service:
+    name: nginx
+    state: stopped
+
+- name: Remove default nginx config
+  file: 
+    name: /etc/nginx/sites-enabled/default 
+    state: absent
+
+- name: Install system nginx config
+  template:
+    src: templates/nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  tags:
+    - config
+
+- name: add nginx to debian group
+  user: 
+    name: www-data
+    groups: "{{ DATA_USER }}"
+    append: yes
+  tags:
+    - config
+
+- name: Check if certificate already exists.
+  stat:
+    path: /etc/letsencrypt/live/{{ UI_HOSTNAME }}/cert.pem
+  register: letsencrypt_cert
+
+- name: Ensure pre and post hook folders exist.
+  file:
+    path: /etc/letsencrypt/renewal-hooks/{{ item }}
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  with_items:
+    - pre
+    - post
+
+- name: Create pre hook to stop services.
+  template:
+    src: stop_services.j2
+    dest: /etc/letsencrypt/renewal-hooks/pre/stop_services
+    owner: root
+    group: root
+    mode: 0750
+
+- name: Create post hook to start services.
+  template:
+    src: start_services.j2
+    dest: /etc/letsencrypt/renewal-hooks/post/start_services
+    owner: root
+    group: root
+    mode: 0750
+
+- name: Generate new certificate if one doesn't exist.
+  command: "certbot certonly --standalone --noninteractive --agree-tos --email {{ CERT_EMAIL }} -d {{ UI_HOSTNAME }}"
+  when: not letsencrypt_cert.stat.exists
+
+- name: Add cron job for certbot renewal (if configured).
+  cron:
+    name: Certbot automatic renewal.
+    job: "certbot renew --quiet --no-self-upgrade"
+    special_time: monthly
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+  tags: 
+    - config 

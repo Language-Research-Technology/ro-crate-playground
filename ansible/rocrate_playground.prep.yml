@@ -1,0 +1,6 @@
+---
+- hosts: rocrate_playground
+  become: yes
+  roles:
+    - prep
+

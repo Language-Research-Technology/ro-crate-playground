@@ -1,0 +1,11 @@
+---
+###
+# Monitor Docker Ansible Playbook
+# - run as:
+# ansible-playbook --tags [tag1,tag2] ldaca_portal.oni.yml -i hosts/ldaca-data.[uat|prod]
+###
+- hosts: rocrate_playground
+  become: yes
+  roles:
+    - ui
+

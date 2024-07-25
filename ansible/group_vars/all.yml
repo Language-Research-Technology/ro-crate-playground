@@ -1,0 +1,12 @@
+SUDO_USER: debian
+
+DATA_USER: debian
+
+APP_DELETE_NODEMODULES: False
+APP_DIR: /home/debian/ro-crate-playground
+APP_GIT_URL: git@github.com:Language-Research-Technology/ro-crate-playground.git
+
+NODEJS_VERSION: 20
+
+TMP_DIR: /opt/storage/files
+

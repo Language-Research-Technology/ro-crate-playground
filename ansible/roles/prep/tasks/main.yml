@@ -1,0 +1,82 @@
+---
+
+- name: Update and upgrade apt packages
+  become: true
+  apt:
+    upgrade: yes
+    update_cache: yes
+  tags:
+    - update
+    
+- name: Install prerequisites
+  apt:
+    name:
+      - apt-transport-https
+      - gcc
+      - g++
+      - make
+      - lsof
+      - gpg
+      - git
+      - vim 
+      - pip
+      - golang
+      - screen
+      - tree
+    state: present
+  tags:
+    - prereqs
+
+- name: Install stormssh module
+  pip:
+    name: stormssh
+
+- name: Add github key to "{{ DATA_USER }}"
+  become: true
+  become_user: "{{ DATA_USER }}"
+  template:
+    src: "{{ GITHUB_KEY_LOCATION }}"
+    dest: "{{ GITHUB_KEY_PATH }}"
+    mode: 0600
+  tags:
+    - git
+
+- name: Add a host in the configuration
+  community.general.ssh_config:
+    host: "github.com"
+    identity_file: "{{ GITHUB_KEY_PATH }}"
+    state: present
+
+- name: Install the gpg key for nodejs LTS
+  apt_key:
+    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+    state: present
+  tags:
+    - node
+    
+- name: Install the nodejs LTS repos
+  apt_repository:
+    repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
+    state: present
+    update_cache: yes
+  tags:
+    - node
+
+- name: Install nodejs
+  apt:
+    name: nodejs
+    state: latest
+  tags:
+    - node
+    
+- name: Mount ext4 p device by "{{ MOUNT_STORAGE_DEVICE_UUID }}"
+  when: MOUNT_STORAGE_DEVICE_UUID is defined
+  ansible.posix.mount:
+    path: /opt/storage
+    src: UUID={{ MOUNT_STORAGE_DEVICE_UUID }}
+    fstype: ext4
+    opts: noatime
+    state: mounted
+  tags:
+    - volume
+

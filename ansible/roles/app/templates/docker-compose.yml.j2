@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  app:
+    restart: always
+    image: rrkive/ro-crate-playground:{{APP_VERSION}}
+    hostname: app
+    user: "1000:1000"
+    tty: true
+    environment:
+      TERM: "xterm-256color"
+      NODE_ENV: "production"
+      LOG_LEVEL: "debug"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      DB_USER: "root"
+      DB_PASSWORD: ""
+      DB_DATABASE: "oni"
+    volumes:
+      - ./configuration.json:/srv/configuration.json
+      - /tmp/files:/tmp
+    ports:
+      - "0.0.0.0:8080:8080"    
+    command: [ "npm", "run", "prod" ]
+

@@ -1,0 +1,25 @@
+{
+  "name": "ro-crate-playground",
+  "version": "0.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "prod": "node src/index.js"
+  },
+  "main": "src/index.js",
+  "type": "module",
+  "imports": {
+    "#src/*": "./src/*"
+  },
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@hono/node-server": "^1.11.2",
+    "fs-extra": "^11.2.0",
+    "hono": "^4.4.5",
+    "ro-crate": "^3.3.10",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17"
+  }
+}

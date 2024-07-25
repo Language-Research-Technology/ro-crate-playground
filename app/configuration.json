@@ -1,0 +1,16 @@
+{
+  "examples": [
+    {
+      "name": "sample-crate",
+      "path": "example-crates/example-ro-sample-image-crate/sample-crate",
+      "zip": "example-crates/example-ro-sample-image-crate/download/sample-crate.zip",
+      "description": "Example crate with lots of little files"
+    },
+    {
+      "name": "example-farms",
+      "path": "example-crates/example-farms",
+      "zip": null,
+      "description": "Farms to Freeways Example Dataset"
+    }
+  ]
+}

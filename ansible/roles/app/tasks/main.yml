@@ -1,0 +1,254 @@
+---
+
+- name: Delete {{ APP_DIR }} dir
+  when: APP_GIT_DELETE
+  become: true
+  file:
+    state: absent
+    owner: "{{ DATA_USER }}"
+    group: "{{ DATA_USER }}"
+    path: "{{ APP_DIR }}"
+  tags:
+    - git
+    - update
+
+- name: APP_git dir
+  become: true
+  file:
+    state: directory
+    owner: "{{ DATA_USER }}"
+    group: "{{ DATA_USER }}"
+    path: "{{ APP_DIR }}/"
+  tags:
+    - git
+    - update
+
+- name: fix app_UI_git folder permission
+  become: true
+  file:
+    owner: "{{ DATA_USER }}"
+    group: "{{ DATA_USER }}"
+    state: directory
+    path: "{{ APP_DIR }}"
+  tags:
+    - git
+    - update
+
+- name: Get ldaca_portal_git
+  become: true
+  become_user: "{{ DATA_USER }}"
+  git:
+    repo: "{{ app_UI_GIT_URL }}"
+    key_file: "{{ GITHUB_KEY_PATH }}"
+    accept_hostkey: yes
+    version: "{{ APP_GIT_BRANCH }}"
+    dest: "{{ APP_DIR }}"
+    force: yes
+  tags:
+    - git
+    - update
+
+- name: Add .env to "{{ APP_DIR }}"
+  become: true
+  become_user: "{{ DATA_USER }}"
+  template:
+    src: templates/.env.j2
+    dest: "{{ APP_DIR }}/.env"
+    mode: 0644
+  tags:
+    - config
+    - git
+    - update
+
+- name: Add configuration to "{{ APP_DIR }}/configuration"
+  become: true
+  become_user: "{{ DATA_USER }}"
+  template:
+    src: templates/configuration.json.j2
+    dest: "{{ APP_DIR }}/configuration.json"
+    mode: 0644
+  tags:
+    - config
+    - app-config
+    - git
+    - update
+
+- name: Add add logo
+  when: UI_LOGO is defined
+  become: true
+  become_user: "{{ DATA_USER }}"
+  template:
+    src: "templates/{{ UI_LOGO }}"
+    dest: "{{ APP_DIR }}/portal/src/assets/logo.svg"
+  tags:
+    - app-config
+    - update
+    - config
+
+
+- name: "fix {{TMP_DIR}} folder permission"
+  become: true
+  file:
+    owner: "{{ DATA_USER }}"
+    group: "{{ DATA_USER }}"
+    state: directory
+    path: "{{ TMP_DIR }}"
+  tags:
+    - config
+    - update
+
+- name: Pre-Compile portal
+  when: APP_DELETE_NODEMODULES
+  become: true
+  become_user: "{{ DATA_USER }}"
+  file:
+    path: "{{ APP_DIR }}/portal/node_modules"
+    state: absent
+  tags:
+    - git
+    - build
+    - update
+
+- name: Pre-Compile portal
+  when: APP_DELETE_NODEMODULES
+  become: true
+  become_user: "{{ DATA_USER }}"
+  file:
+    path: "{{ APP_DIR }}/portal/package-lock.json"
+    state: absent
+  tags:
+    - git
+    - build
+    - update
+
+- name: Compile portal
+  become: true
+  become_user: "{{ DATA_USER }}"
+  command: npm run build
+  register: command_result
+  failed_when:
+    - "'ERROR in' in command_result.stderr"
+  args:
+    chdir: "{{ APP_DIR }}/portal"
+    creates: "{{ APP_DIR }}/portal/dist"
+  tags:
+    - git
+    - build
+    - compile-portal
+    - update
+
+- name: Pre-install indexers
+  when: APP_DELETE_NODEMODULES
+  become: true
+  become_user: "{{ DATA_USER }}"
+  file:
+    path: "{{ APP_DIR }}/node_modules"
+    state: absent
+  tags:
+    - git
+    - build
+    - update
+
+- name: Pre-install indexers
+  when: APP_DELETE_NODEMODULES
+  become: true
+  become_user: "{{ DATA_USER }}"
+  file:
+    path: "{{ APP_DIR }}/package-lock.json"
+    state: absent
+  tags:
+    - git
+    - build
+    - update
+
+- name: Install indexers
+  become: true
+  become_user: "{{ DATA_USER }}"
+  command: npm install
+  register: command_result
+  failed_when:
+    - "'ERROR in' in command_result.stderr"
+  args:
+    chdir: "{{ APP_DIR }}"
+    creates: "{{ APP_DIR }}/node_modules"
+  tags:
+    - git
+    - build
+    - update
+
+- name: Tear down existing services
+  become: true
+  become_user: "{{ DATA_USER }}"
+  community.docker.docker_compose:
+    project_src: "{{ APP_DIR }}"
+    state: absent
+  register: output
+  tags:
+    - compose
+    - update
+
+- name: output from compose
+  debug:
+    msg: "{{ output }}"
+  tags:
+    - compose
+    - update
+
+- name: Create and start services
+  become: true
+  become_user: "{{ DATA_USER }}"
+  community.docker.docker_compose:
+    build: yes
+    project_src: "{{ APP_DIR }}"
+    recreate: always
+  register: output
+  tags:
+    - compose
+    - update
+
+- name: output from compose
+  debug:
+    msg: "{{ output }}"
+  tags:
+    - compose
+    - update
+
+- name: Run Structural app indexer
+  become: true
+  become_user: "{{ DATA_USER }}"
+  command: node structural-index.js
+  register: command_result
+  failed_when:
+    - "'ERROR in' in command_result.stderr"
+  args:
+    chdir: "{{ APP_DIR }}"
+  tags:
+    - structural
+    - index
+
+- name: Add docker ignore "{{ APP_DIR }}"
+  become: true
+  become_user: "{{ DATA_USER }}"
+  template:
+    src: templates/.dockerignore
+    dest: "{{ APP_DIR }}/.dockerignore"
+  tags:
+    - config
+
+- name: restart app-api
+  debug:
+    msg: "restarting app api"
+  changed_when: true
+  notify:
+    - restart-app-api
+  tags:
+    - restart-api
+
+- name: restart app
+  debug:
+    msg: "restarting app"
+  changed_when: true
+  notify:
+    - restart-app
+  tags:
+    - restart-app
