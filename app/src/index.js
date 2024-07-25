@@ -66,7 +66,7 @@ app.post('/upload', async (c) => {
     try {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
-        const filePath = path.join('/tmp', uuidv4() + '.json');
+        const filePath = path.join('/opt/storage/files', uuidv4() + '.json');
         await fs.writeFile(filePath, buffer);
         const json = await fs.readJson(filePath);
         return c.json({

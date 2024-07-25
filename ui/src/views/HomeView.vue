@@ -35,9 +35,6 @@ import {RouterLink} from 'vue-router'
             <el-button type="primary" color="" size="large">
               <RouterLink to="/explorer">Start Packaging</RouterLink>
             </el-button>
-            <el-button type="primary" color="red" size="large">
-              <RouterLink to="/help">Start Learning</RouterLink>
-            </el-button>
           </div>
         </el-col>
       </el-row>
