@@ -14,7 +14,7 @@
     </div>
     <template #tip>
       <div class="el-upload__tip">
-        json/jsonld files
+        json/jsonld files with a size less than 100MB.
       </div>
     </template>
   </el-upload>

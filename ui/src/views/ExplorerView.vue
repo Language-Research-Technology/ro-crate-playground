@@ -2,8 +2,8 @@
 import {
   Document,
   Menu as IconMenu,
-  Location,
-  Setting,
+  Help,
+  CopyDocument,
   HomeFilled,
   Box, Files,
   CloseBold
@@ -24,6 +24,7 @@ import JsonEditorVue from 'json-editor-vue'
 import {useStore} from "@/stores/store.js";
 import rocratelogo from '@/assets/ro-crate-logo.png';
 import {ElMessage, ElMessageBox} from 'element-plus'
+import HelpView from "@/views/HelpView.vue";
 
 
 const store = useStore();
@@ -231,25 +232,18 @@ const fileUploaded = async (data) => {
         </el-menu-item>
         <el-menu-item index="examples">
           <template #title>
-            <el-icon>
-              <setting/>
-            </el-icon>
+            <el-icon><CopyDocument /></el-icon>
             <span>Examples</span>
           </template>
         </el-menu-item>
-        <el-sub-menu index="3">
+        <el-menu-item index="help">
           <template #title>
             <el-icon>
-              <setting/>
+              <help/>
             </el-icon>
             <span>Help</span>
           </template>
-          <el-menu-item index="3-1" @click="drawer = true">
-            Help 1
-          </el-menu-item>
-          <el-menu-item index="3-2">Help 2</el-menu-item>
-          <el-menu-item index="3-3">Help 3</el-menu-item>
-        </el-sub-menu>
+        </el-menu-item>
         <hr/>
         <template v-if="!crateIsEmpty()">
           <div class="text-2xl p-4 px-6 flex items-center justify-center">
@@ -375,6 +369,9 @@ const fileUploaded = async (data) => {
           </el-card>
         </div>
       </div>
+      <div v-if="menu.show==='help'">
+        <HelpView/>
+      </div>
     </el-col>
     <el-col :xs="24" :sm="16" :md="6" :lg="6" :xl="6">
       <el-container v-if="menu.show==='crate'">
@@ -401,9 +398,6 @@ const fileUploaded = async (data) => {
       </el-container>
     </el-col>
   </el-row>
-  <el-drawer v-model="drawer" title="I am the title" :with-header="false">
-    <span>little help tutorial with screenshots</span>
-  </el-drawer>
 </template>
 <style>
 .custom-button {

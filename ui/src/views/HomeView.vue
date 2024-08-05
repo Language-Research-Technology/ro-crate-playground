@@ -18,9 +18,7 @@ import {RouterLink} from 'vue-router'
   <div class="flex items-center justify-center">
     <div class="h-20 w-[600px] flex items-center justify-center">
       <el-row :gutter="10">
-        <p class="p-2 text-red-900 text-4xl">Package</p>
-        <p class="p-2 text-emerald-400 text-4xl">Describe</p>
-        <p class="p-2 text-violet-600 text-4xl">Publish</p>
+
       </el-row>
     </div>
   </div>
@@ -29,8 +27,14 @@ import {RouterLink} from 'vue-router'
       <el-row>
         <el-col :span="24">
           <p class="p-10 text-violet-600 text-2xl text-center">
-            This is the playground of the RO-Crate specification described a method of packaging data in a folder, which
+            This is the playground of the RO-Crate specification. The RO-Crate is described as a method of packaging data in a folder, which
             can be zipped, with any kind of file.
+          </p>
+          <p class="p-10 text-emerald-400 text-2xl text-center">
+            For more on RO-Crate please visit <a class="underline" href="https://www.researchobject.org/ro-crate/">www.researchobject.org/ro-crate/</a>
+          </p>
+          <p class="p-10 text-violet-600 text-2xl text-center">
+            This Playground is aimed at developers looking to explore ro-crates in the browser without downloading any tools
           </p>
           <div class="flex items-center justify-center">
             <RouterLink to="/explorer">
