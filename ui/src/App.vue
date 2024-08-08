@@ -25,9 +25,9 @@ onMounted(() => {
       </main>
     </el-col>
   </el-row>
-  <el-dialog v-model="centerDialogVisible" title="Hi!" width="500" center>
+  <el-dialog v-model="centerDialogVisible" title="Hi there!" width="500" center>
     <h3 class="text-xl">
-      Hi there, thanks for checking out this RO-Crate Playground. This is an early preview in progress and as such we
+      Thanks for checking out this RO-Crate Playground. This is an early preview in progress and as such we
       can’t guarantee the accuracy of the tool for editing or validating your collections. We hope this helps you learn
       more about RO-Crates!
     </h3>
