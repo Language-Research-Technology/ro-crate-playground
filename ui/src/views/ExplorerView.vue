@@ -10,8 +10,8 @@ import {
 } from '@element-plus/icons-vue'
 import {onMounted, onUpdated, reactive, ref, toRaw} from 'vue';
 import mode from 'ro-crate-modes/modes/default.json';
-import {ROCrate} from "ro-crate";
-import {Validator} from "ro-crate/lib/validator";
+import {ROCrate, validate as validateCrate} from "ro-crate";
+//import {Validator} from "ro-crate/lib/validator";
 import {Preview} from 'ro-crate-html';
 import ejs from 'ejs';
 import template from 'ro-crate-html/defaults/metadata_template.html?raw';
@@ -110,26 +110,9 @@ onUpdated(async () => {
 const validate = async () => {
   validation.running = true;
   validation.results = [];
-  let crate;
-  try {
-    crate = new ROCrate(store.crate, {array: true, link: true});
-    console.log('name', crate.rootDataset?.name);
-    const validator = new Validator();
-    validator.parseJSON(crate);
-    await validator.validate();
-    const seenIds = new Set();
-    validator.results.forEach(item => {
-      if (!seenIds.has(item.id)) {
-        seenIds.add(item.id);
-        validation.results.push(item);
-      }
-    });
-    validation.running = false;
-  } catch (e) {
-    validation.crate = e;
-    validation.results.push({status: 'error', message: e?.message});
-    validation.running = false;
-  }
+  const results = await validateCrate(store.crate);
+  validation.results = results.slice();
+  validation.running = false;
 }
 const crateViewActive = ref('first');
 const switchCrateView = async (e) => {

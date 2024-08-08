@@ -16,7 +16,7 @@
     "@hono/node-server": "^1.11.2",
     "fs-extra": "^11.2.0",
     "hono": "^4.4.5",
-    "ro-crate": "3.4.0",
+    "ro-crate": "3.4.1",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
