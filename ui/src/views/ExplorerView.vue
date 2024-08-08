@@ -10,7 +10,8 @@ import {
 } from '@element-plus/icons-vue'
 import {onMounted, onUpdated, reactive, ref, toRaw} from 'vue';
 import mode from 'ro-crate-modes/modes/default.json';
-import {ROCrate, Checker} from "ro-crate";
+import {ROCrate} from "ro-crate";
+import {Validator} from "ro-crate/lib/validator";
 import {Preview} from 'ro-crate-html';
 import ejs from 'ejs';
 import template from 'ro-crate-html/defaults/metadata_template.html?raw';
@@ -108,16 +109,26 @@ onUpdated(async () => {
 
 const validate = async () => {
   validation.running = true;
+  validation.results = [];
   let crate;
   try {
     crate = new ROCrate(store.crate, {array: true, link: true});
     console.log('name', crate.rootDataset?.name);
-    const checker = new Checker(crate);
-    await checker.check();
-    validation.checklist = checker.checklist;
+    const validator = new Validator();
+    validator.parseJSON(crate);
+    await validator.validate();
+    const seenIds = new Set();
+    validator.results.forEach(item => {
+      if (!seenIds.has(item.id)) {
+        seenIds.add(item.id);
+        validation.results.push(item);
+      }
+    });
     validation.running = false;
   } catch (e) {
     validation.crate = e;
+    validation.results.push({status: 'error', message: e?.message});
+    validation.running = false;
   }
 }
 const crateViewActive = ref('first');
@@ -232,7 +243,9 @@ const fileUploaded = async (data) => {
         </el-menu-item>
         <el-menu-item index="examples">
           <template #title>
-            <el-icon><CopyDocument /></el-icon>
+            <el-icon>
+              <CopyDocument/>
+            </el-icon>
             <span>Examples</span>
           </template>
         </el-menu-item>
@@ -384,13 +397,15 @@ const fileUploaded = async (data) => {
         </el-header>
         <el-main v-loading="validation.running">
           <hr/>
-          <p>{{ validation.crate }}</p>
-          <div v-for="item of validation.checklist" class="m-1">
-            <el-alert :type="item?.status ? 'info': 'error'" :closable="false"
-            >
-              <p><span v-if="!item?.status">
-                <el-icon><CloseBold class="red-600"/></el-icon>
-              </span>{{ item?.message }}
+          <div v-for="item of validation.results" class="m-1">
+            <el-alert :type="item?.status" :closable="false">
+              <p>
+                <span v-if="item?.status === 'error'">
+                  <el-icon><CloseBold class="red-600"/></el-icon>
+                </span>
+                <span class="font-bold uppercase">{{ item?.status }}: </span>
+                <span v-if="item?.message">{{ item?.message }}</span>
+                <span v-else>{{ item?.clause }}</span>
               </p>
             </el-alert>
           </div>

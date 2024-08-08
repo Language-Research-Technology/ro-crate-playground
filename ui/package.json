@@ -19,7 +19,7 @@
     "element-plus": "^2.7.5",
     "json-editor-vue": "^0.15.1",
     "pinia": "^2.1.7",
-    "ro-crate": "^3.3.10",
+    "ro-crate": "3.4.0",
     "ro-crate-html": "^0.1.4",
     "ro-crate-modes": "github:Language-Research-Technology/ro-crate-modes",
     "tailwind": "^4.0.0",
