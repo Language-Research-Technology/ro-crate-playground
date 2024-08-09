@@ -1,7 +1,7 @@
 {
   "name": "ro-crate-playground",
   "version": "0.0.0",
-  "description": "",
+  "description": "Backend app for ro-crate-playground",
   "scripts": {
     "dev": "node --watch src/index.js",
     "prod": "node src/index.js"
@@ -11,7 +11,7 @@
   "imports": {
     "#src/*": "./src/*"
   },
-  "license": "GPL-3.0",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@hono/node-server": "^1.11.2",
     "fs-extra": "^11.2.0",
