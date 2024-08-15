@@ -26,9 +26,10 @@ import {useStore} from "@/stores/store.js";
 import rocratelogo from '@/assets/ro-crate-logo.png';
 import {ElMessage, ElMessageBox} from 'element-plus'
 import HelpView from "@/views/HelpView.vue";
-
+import {useGtag} from 'vue-gtag-next';
 
 const store = useStore();
+const gtag = useGtag();
 
 const activeIndex = ref('1');
 let menu = reactive({main: '-'});
@@ -193,7 +194,7 @@ const generateHTMLPreview = async () => {
     iframe.style.width = "100%";
     iframe.style.height = "1200px";
     document.getElementById("html_preview").innerHTML = "";
-    document.getElementById("html_preview").appendChild(iframe)
+    document.getElementById("html_preview").appendChild(iframe);
     status.htmlPreviewLoading = false;
   } catch (e) {
     status.htmlPreviewLoading = false;
@@ -202,6 +203,10 @@ const generateHTMLPreview = async () => {
 }
 
 const fileUploaded = async (data) => {
+  gtag.pageview({
+    page_path: '/explorer',
+    page_title: 'File Upload Success',
+  });
   await setCrate({upload: data});
 }
 </script>

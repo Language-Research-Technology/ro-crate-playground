@@ -1,4 +1,5 @@
 {
+  "googleAnalyticsTag": "G-XXXX",
   "examples": [
     {
       "name": "sample-crate",

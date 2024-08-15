@@ -2,11 +2,18 @@
 import {RouterLink, RouterView} from 'vue-router'
 import Navigation from './components/Navigation.vue';
 import {onMounted, ref} from 'vue';
+import {useGtag} from 'vue-gtag-next';
+
+const gtag = useGtag();
 
 const centerDialogVisible = ref(false);
 
 onMounted(() => {
-  centerDialogVisible.value = true
+  centerDialogVisible.value = true;
+  gtag.pageview({
+    page_path: '/',
+    page_title: 'Mounted App',
+  });
 });
 </script>
 

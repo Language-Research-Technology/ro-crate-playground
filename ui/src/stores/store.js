@@ -8,7 +8,8 @@ export const useStore = defineStore('store', {
         json: {},
         examples: [],
         example: {},
-        loading: false
+        loading: false,
+        g_tag: ''
     }),
     getters: {},
     actions: {
@@ -26,8 +27,10 @@ export const useStore = defineStore('store', {
         async fetchData() {
             this.loading = true;
             try {
-                const res = await fetch('/app/examples');
-                this.examples = await res.json();
+                const response = await fetch('/app/configuration');
+                const configuration = await response.json();
+                this.g_tag = configuration?.googleAnalyticsTag || '';
+                this.examples = configuration?.examples || [];
                 //TODO: if you have something else need to pre-load do it here.
             } catch (error) {
                 return error;

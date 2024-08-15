@@ -19,11 +19,6 @@ app.get('/crate.json', (c) => {
     return c.json(json);
 });
 
-app.get('/examples', async (c) => {
-    const configuration = await fs.readJson('./configuration.json');
-    return c.json(configuration?.examples || []);
-});
-
 app.get('/example/:name', async (c) => {
     const configuration = await fs.readJson('./configuration.json');
     const example = configuration.examples.find((e) => e.name === c.req.param('name'));

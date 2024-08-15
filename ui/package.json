@@ -25,6 +25,8 @@
     "ro-crate-modes": "github:Language-Research-Technology/ro-crate-modes",
     "tailwind": "^4.0.0",
     "vue": "^3.4.21",
+    "vue-gtag": "^2.0.1",
+    "vue-gtag-next": "^1.14.0",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
