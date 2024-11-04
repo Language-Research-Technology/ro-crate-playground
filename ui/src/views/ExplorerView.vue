@@ -38,7 +38,6 @@ const tour1 = ref();
 const tour2 = ref();
 const tour3 = ref();
 const tour4 = ref();
-const tour5 = ref();
 
 let validIcon = ref('success');
 
@@ -81,7 +80,6 @@ let openTour = ref(false);
 
 store.$subscribe((mutation, state) => {
   if (mutation.events.key === 'crate') {
-    console.log(`Crate changed! ${state.crate}`);
     validIcon.value = 'reValidate';
   }
 });
@@ -253,7 +251,7 @@ const fileUploaded = async (data) => {
 
 <template>
   <el-row :gutter="10">
-    <el-col :xs="24" :sm="4" :md="4" :lg="4" :xl="4">
+    <el-col :xs="24" :sm="5" :md="5" :lg="5" :xl="5">
       <el-menu
           :default-active="'home'"
           class="el-menu-explorer"
@@ -269,7 +267,7 @@ const fileUploaded = async (data) => {
             <span>Upload Crate</span>
           </template>
         </el-menu-item>
-        <el-menu-item index="examples" ref="tour4">
+        <el-menu-item index="examples" ref="tour3">
           <template #title>
             <el-icon>
               <CopyDocument/>
@@ -280,13 +278,13 @@ const fileUploaded = async (data) => {
         <hr/>
         <template v-if="!crateIsEmpty()">
           <div class="text-2xl p-4 px-6 flex items-center justify-center"
-               ref="tour3">
+               >
             <el-icon>
               <Box/>
             </el-icon>
             <span class="px-2">Crate</span>
           </div>
-          <el-menu-item index="crate">
+          <el-menu-item index="crate" >
             <el-tooltip v-if="validIcon === 'reValidate'"
                         class="box-item"
                         effect="dark"
@@ -360,7 +358,7 @@ const fileUploaded = async (data) => {
         </template>
         <div class="text-2xl p-4 px-6 flex items-center justify-center">
           <el-button type="primary" color="brown" @click="setCrate({})"
-                     class="custom-button" ref="tour5">Create New
+                     class="custom-button" ref="tour4">Create New
           </el-button>
         </div>
         <div class="text-2xl p-4 px-6 flex items-center justify-center">
@@ -370,7 +368,7 @@ const fileUploaded = async (data) => {
         </div>
       </el-menu>
     </el-col>
-    <el-col :xs="24" :sm="20" :md="20" :lg="20" :xl="20">
+    <el-col :xs="24" :sm="19" :md="19" :lg="19" :xl="19">
       <div v-if="menu.show==='home'">
         <div class="flex items-center justify-center">
           <div class="h-32 w-[600px]">
@@ -496,20 +494,15 @@ const fileUploaded = async (data) => {
     <el-tour-step
         :target="tour2?.$el"
         title="Edit ro-crate-metadata.json"
-        description="In this pane you can edit your ro-crate-metadata file with a plain json editor or with a Visual Editor Ro-Crate. An HTML preview will be generated everytime you switch tabs."
+        description="In this pane you can edit your ro-crate-metadata file after you upload it or when creating a new ro-crate. This is done with a plain json editor or with a Visual Editor Ro-Crate. An HTML preview will be generated everytime you switch tabs."
     />
     <el-tour-step
         :target="tour3?.$el"
-        title="Validate your ro-crate-metadata.json"
-        description="This button will run simple validation for your ro-crate according to the spec"
-    />
-    <el-tour-step
-        :target="tour4?.$el"
         title="Load Examples"
         description="Click to show examples of RO-Crates to play around!"
     />
     <el-tour-step
-        :target="tour5?.$el"
+        :target="tour4?.$el"
         title="Create New"
         description="Create a new RO-Crate from a base ro-crate"
     />
