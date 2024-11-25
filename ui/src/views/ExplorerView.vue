@@ -274,6 +274,21 @@ const fileUploaded = async (data) => {
   });
   await setCrate({upload: data});
 }
+
+const downloadCrate = () => {
+  try {
+    const content = JSON.stringify(explorer.crate, null, 2);
+    let blob = new Blob([content], {type: 'application/json'});
+    let url = window.URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.download = 'ro-crate-metadata.json';
+    link.href = url;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }catch (e) {
+    alert(`Error: ${JSON.stringify(e)}`);
+  }
+}
 </script>
 
 <template>
@@ -378,11 +393,17 @@ const fileUploaded = async (data) => {
                  @tab-click="switchCrateView">
           <el-tab-pane label="JSON" name="json">
             <div>
-              <el-row class="p-2">
-                <el-link @click="drawer = true; validate()">
+              <el-row :gutter="0" class="p-2">
+                <el-link @click="drawer = true; validate()" class="mx-4">
                   Validate
                   <el-icon size="30" style="margin-right: 3px;">
                     <List/>
+                  </el-icon>
+                </el-link>
+                <el-link @click="downloadCrate()" class="p-4 my-2">
+                  Download
+                  <el-icon size="30">
+                    <Download/>
                   </el-icon>
                 </el-link>
               </el-row>
@@ -396,11 +417,17 @@ const fileUploaded = async (data) => {
             </div>
           </el-tab-pane>
           <el-tab-pane label="Visual Editor" name="visual">
-            <el-row class="p-2">
-              <el-link @click="drawer = true; validate()">
+            <el-row :gutter="0" class="p-2">
+              <el-link @click="drawer = true; validate()" class="mx-4">
                 Validate
                 <el-icon size="30" style="margin-right: 3px;">
                   <List/>
+                </el-icon>
+              </el-link>
+              <el-link @click="downloadCrate()" class="p-4 my-2">
+                Download
+                <el-icon size="30">
+                  <Download/>
                 </el-icon>
               </el-link>
             </el-row>
@@ -415,8 +442,8 @@ const fileUploaded = async (data) => {
             </el-row>
           </el-tab-pane>
           <el-tab-pane label="HTML Preview" name="html">
-            <el-row class="p-2">
-              <el-link @click="drawer = true; validate()">
+            <el-row :gutter="0" class="p-2">
+              <el-link @click="drawer = true; validate()" class="mx-4">
                 Validate
                 <el-icon size="30" style="margin-right: 3px;">
                   <List/>
@@ -434,8 +461,8 @@ const fileUploaded = async (data) => {
             </el-row>
           </el-tab-pane>
           <el-tab-pane label="HTML Preview (lite)" name="html_lite">
-            <el-row class="p-2">
-              <el-link @click="drawer = true; validate()">
+            <el-row :gutter="0" class="p-2">
+              <el-link @click="drawer = true; validate()" class="mx-4">
                 Validate
                 <el-icon size="30" style="margin-right: 3px;">
                   <List/>
