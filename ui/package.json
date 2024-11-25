@@ -22,6 +22,7 @@
     "pinia": "^2.1.7",
     "ro-crate": "3.4.1",
     "ro-crate-html": "^0.1.4",
+    "ro-crate-html-lite": "github:Language-Research-Technology/ro-crate-html-lite",
     "ro-crate-modes": "github:Language-Research-Technology/ro-crate-modes",
     "tailwind": "^4.0.0",
     "vue": "^3.4.21",

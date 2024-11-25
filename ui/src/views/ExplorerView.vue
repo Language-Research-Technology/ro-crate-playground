@@ -9,7 +9,8 @@ import {
   CloseBold,
   CircleCheck,
   Warning,
-  WarnTriangleFilled, QuestionFilled, List
+  WarnTriangleFilled, QuestionFilled, List,
+  Download
 } from '@element-plus/icons-vue'
 import {onMounted, onUpdated, reactive, ref, toRaw} from 'vue';
 import mode from 'ro-crate-modes/modes/base.json';
@@ -18,6 +19,9 @@ import {ROCrate, validate as validateCrate} from "ro-crate";
 import {Preview} from 'ro-crate-html';
 import ejs from 'ejs';
 import template from 'ro-crate-html/defaults/metadata_template.html?raw';
+import {roCrateToJSON, renderTemplate} from 'ro-crate-html-lite/lib/preview';
+import template_lite from 'ro-crate-html-lite/template.html?raw';
+import default_layout from 'ro-crate-html-lite/lib/default_layout.json';
 
 import {CrateEditor} from 'crate-o';
 import 'crate-o/css';
@@ -30,6 +34,7 @@ import rocratelogo from '@/assets/ro-crate-logo.png';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import HelpView from "@/views/HelpView.vue";
 import {useGtag} from 'vue-gtag-next';
+import AboutView from "@/views/AboutView.vue";
 
 const store = useStore();
 const gtag = useGtag();
@@ -45,7 +50,8 @@ const activeIndex = ref('1');
 let menu = reactive({main: '-'});
 const drawer = ref(false);
 const status = reactive({
-  htmlPreviewLoading: false
+  htmlPreviewLoading: false,
+  htmlLitePreviewLoading: false
 });
 
 const validation = reactive({
@@ -93,14 +99,13 @@ const handleSelect = async (key, keyPath) => {
   console.log('handleSelect');
   console.log(key, keyPath)
   menu.show = key;
-  // if (key === 'crate') {
-  //   crateViewActive.value = 'json';
-  //   await validate();
-  // }
+  if (key === 'crate') {
+    crateViewActive.value = 'json';
+    await validate();
+  }
   if (key === 'help') {
     openTour.value = true;
   }
-  console.log(menu.show)
 }
 const handleOpen = async (key, keyPath) => {
   console.log('handleOpen');
@@ -109,7 +114,6 @@ const handleOpen = async (key, keyPath) => {
   if (key === 'crate') {
     crateViewActive.value = 'json';
   }
-  console.log(menu.show)
 }
 const handleClose = (key, keyPath) => {
   console.log('handleClose');
@@ -132,7 +136,7 @@ onMounted(async () => {
 
 const validate = async () => {
   console.log(explorer.crate)
-  if(explorer.crate) {
+  if (explorer.crate) {
     validation.running = true;
     validation.results = [];
     try {
@@ -164,6 +168,10 @@ const switchCrateView = async (e) => {
   if (e.paneName === 'html') {
     store.crate = explorer.crate.toJSON();
     await generateHTMLPreview();
+  }
+  if (e.paneName === 'html_lite') {
+    store.crate = explorer.crate.toJSON();
+    await generateHTMLPreview(true);
   }
 }
 
@@ -216,27 +224,46 @@ const setCrate = async ({example, upload}) => {
   }
 }
 
-const generateHTMLPreview = async () => {
+const generateHTMLPreview = async (lite) => {
   console.log("generate preview");
+  status.htmlPreviewLoading = true;
   try {
-    status.htmlPreviewLoading = true;
     const crate = new ROCrate(store.crate, {array: true, link: true});
     await crate.resolveContext();
-    const preview = new Preview(crate);
-    const templateParams = preview.templateParams();
-    const content = ejs.render(template, templateParams);
+    let content = '';
+    let blobURL;
+    if (lite) {
+      const crateLite = await roCrateToJSON(crate.toJSON(), default_layout);
+      content = renderTemplate(crateLite, template_lite, default_layout)
+    } else {
+      const preview = new Preview(crate);
+      const templateParams = preview.templateParams();
+      content = ejs.render(template, templateParams);
+    }
     const blob = new Blob([content], {type: 'text/html'});
-    const blobURL = URL.createObjectURL(blob);
+    blobURL = URL.createObjectURL(blob);
     const iframe = document.createElement("iframe");
     iframe.src = blobURL;
     iframe.style.width = "100%";
     iframe.style.height = "1200px";
-    document.getElementById("html_preview").innerHTML = "";
-    document.getElementById("html_preview").appendChild(iframe);
+    let elementId = 'html_preview';
+    if (lite) {
+      elementId = 'html_preview_lite';
+      const dL = document.getElementById('html_preview_lite_download');
+      dL.href = blobURL;
+      dL.download = 'ro-crate-preview.html';
+    } else {
+      const dL = document.getElementById('html_preview_download');
+      dL.href = blobURL;
+      dL.download = 'ro-crate-preview.html';
+    }
+    const iFrameWrapper = document.getElementById(elementId);
+    iFrameWrapper.innerHTML = "";
+    iFrameWrapper.appendChild(iframe);
     status.htmlPreviewLoading = false;
   } catch (e) {
     status.htmlPreviewLoading = false;
-    console.log(e)
+    console.log(e);
   }
 }
 
@@ -251,7 +278,7 @@ const fileUploaded = async (data) => {
 
 <template>
   <el-row :gutter="10">
-    <el-col :xs="24" :sm="5" :md="5" :lg="5" :xl="5">
+    <el-col :xs="24" :sm="5" :md="5" :lg="5" :xl="4">
       <el-menu
           :default-active="'home'"
           class="el-menu-explorer"
@@ -278,54 +305,14 @@ const fileUploaded = async (data) => {
         <hr/>
         <template v-if="!crateIsEmpty()">
           <div class="text-2xl p-4 px-6 flex items-center justify-center"
-               >
+          >
             <el-icon>
               <Box/>
             </el-icon>
             <span class="px-2">Crate</span>
           </div>
-          <el-menu-item index="crate" >
-            <el-tooltip v-if="validIcon === 'reValidate'"
-                        class="box-item"
-                        effect="dark"
-                        content="Click to validate crate"
-                        placement="top"
-            >
-              <el-icon size="30" @click="drawer = true; validate()" style="margin-right: 3px;">
-                <List />
-              </el-icon>
-            </el-tooltip>
-            <el-tooltip v-if="validIcon === 'success'"
-                        class="box-item"
-                        effect="dark"
-                        content="Valid crate"
-                        placement="top"
-            >
-              <el-icon size="30" @click="drawer = true; validate()" style="margin-right: 3px;color: darkgreen">
-                <CircleCheck/>
-              </el-icon>
-            </el-tooltip>
-            <el-tooltip v-if="validIcon === 'warning'"
-                        class="box-item"
-                        effect="dark"
-                        content="There are some warnings in your crate, click to see the detail"
-                        placement="top"
-            >
-              <el-icon size="30" @click="drawer = true;  validate()" style="margin-right: 3px;color: gold">
-                <Warning/>
-              </el-icon>
-            </el-tooltip>
-            <el-tooltip v-if="validIcon === 'error'"
-                        class="box-item"
-                        effect="dark"
-                        content="There are some errors in your crate, click to see the detail"
-                        placement="top"
-            >
-              <el-icon size="30" @click="drawer = true; validate()" style="margin-right: 3px;color: red">
-                <WarnTriangleFilled/>
-              </el-icon>
-            </el-tooltip>
-            <p ref="tour2">ro-crate-metadata.json</p>
+          <el-menu-item index="crate">
+            <span ref="tour2" class="text-1xl p-4 px-6 flex items-center justify-center">ro-crate-metadata.json</span>
           </el-menu-item>
           <div>
             <div class="text-1xl p-4 px-6 flex items-center justify-center">
@@ -336,7 +323,7 @@ const fileUploaded = async (data) => {
                   class="box-item"
                   effect="light"
                   content="coming soon!"
-                  placement="top-start"
+                  placement="bottom-end"
               >
                 <span class="px-2">Other Files</span>
               </el-tooltip>
@@ -352,7 +339,8 @@ const fileUploaded = async (data) => {
             <hr/>
             <div class="text-2xl p-4 px-6 flex items-center justify-center">
               <el-button type="primary" disabled @click="()=>{}"
-                         ref="tour6">Add Files</el-button>
+                         ref="tour6">Add Files
+              </el-button>
             </div>
           </div>
         </template>
@@ -368,7 +356,7 @@ const fileUploaded = async (data) => {
         </div>
       </el-menu>
     </el-col>
-    <el-col :xs="24" :sm="19" :md="19" :lg="19" :xl="19">
+    <el-col :xs="24" :sm="19" :md="19" :lg="19" :xl="18">
       <div v-if="menu.show==='home'">
         <div class="flex items-center justify-center">
           <div class="h-32 w-[600px]">
@@ -386,22 +374,37 @@ const fileUploaded = async (data) => {
         </div>
       </div>
       <div v-if="menu.show==='crate'">
-        <el-tabs v-model="crateViewActive" class="demo-tabs"
+        <el-tabs v-model="crateViewActive" class="crate-tab"
                  @tab-click="switchCrateView">
           <el-tab-pane label="JSON" name="json">
-            <div class="flex flex-col min-h-screen">
-              <header class="h-1"></header>
-              <main class="flex-1 bg-gray-100">
+            <div>
+              <el-row class="p-2">
+                <el-link @click="drawer = true; validate()">
+                  Validate
+                  <el-icon size="30" style="margin-right: 3px;">
+                    <List/>
+                  </el-icon>
+                </el-link>
+              </el-row>
+              <el-row class="flex-1 flex-col">
                 <JsonEditorVue
                     :stringified="false"
                     v-model="store.crate"
                     v-bind="{/* local props & attrs */}"
                 />
-              </main>
+              </el-row>
             </div>
           </el-tab-pane>
           <el-tab-pane label="Visual Editor" name="visual">
-            <el-row>
+            <el-row class="p-2">
+              <el-link @click="drawer = true; validate()">
+                Validate
+                <el-icon size="30" style="margin-right: 3px;">
+                  <List/>
+                </el-icon>
+              </el-link>
+            </el-row>
+            <el-row class="flex-1 flex-col">
               <div v-if="!validation.generalError">
                 <crate-editor :crate="store.crate" :mode="mode" @ready="ready"></crate-editor>
               </div>
@@ -412,7 +415,42 @@ const fileUploaded = async (data) => {
             </el-row>
           </el-tab-pane>
           <el-tab-pane label="HTML Preview" name="html">
-            <div id="html_preview" v-loading="status.htmlPreviewLoading"></div>
+            <el-row class="p-2">
+              <el-link @click="drawer = true; validate()">
+                Validate
+                <el-icon size="30" style="margin-right: 3px;">
+                  <List/>
+                </el-icon>
+              </el-link>
+              <el-link id="html_preview_download" class="p-4 my-2">
+                Download
+                <el-icon size="30">
+                  <Download/>
+                </el-icon>
+              </el-link>
+            </el-row>
+            <el-row class="flex-1 flex-col">
+              <div id="html_preview" v-loading="status.htmlPreviewLoading"></div>
+            </el-row>
+          </el-tab-pane>
+          <el-tab-pane label="HTML Preview (lite)" name="html_lite">
+            <el-row class="p-2">
+              <el-link @click="drawer = true; validate()">
+                Validate
+                <el-icon size="30" style="margin-right: 3px;">
+                  <List/>
+                </el-icon>
+              </el-link>
+              <el-link id="html_preview_lite_download" class="p-4 my-2">
+                Download
+                <el-icon size="30">
+                  <Download/>
+                </el-icon>
+              </el-link>
+            </el-row>
+            <el-row class="flex-1 flex-col">
+              <div id="html_preview_lite" v-loading="status.htmlLitePreviewLoading"></div>
+            </el-row>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -519,8 +557,8 @@ const fileUploaded = async (data) => {
 
 .el-menu-explorer {
   white-space: nowrap;
-  font-size: 1rem; /* Adjust font size */
-  padding: 8px 16px; /* Adjust padding as necessary */
+  font-size: 1rem;
+  padding: 0;
 }
 
 .el-menu-item > p {
