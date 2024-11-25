@@ -50,8 +50,7 @@ const activeIndex = ref('1');
 let menu = reactive({main: '-'});
 const drawer = ref(false);
 const status = reactive({
-  htmlPreviewLoading: false,
-  htmlLitePreviewLoading: false
+  htmlPreviewLoading: false
 });
 
 const validation = reactive({
@@ -162,12 +161,15 @@ const validate = async () => {
 const crateViewActive = ref('first');
 const switchCrateView = async (e) => {
 
+
   if (e.paneName === 'json') {
     store.crate = explorer.crate.toJSON();
   }
   if (e.paneName === 'html') {
+    status.htmlPreviewLoading = true;
     store.crate = explorer.crate.toJSON();
     await generateHTMLPreview();
+    status.htmlPreviewLoading = false;
   }
   if (e.paneName === 'html_lite') {
     store.crate = explorer.crate.toJSON();
@@ -226,7 +228,6 @@ const setCrate = async ({example, upload}) => {
 
 const generateHTMLPreview = async (lite) => {
   console.log("generate preview");
-  status.htmlPreviewLoading = true;
   try {
     let content = '';
     let blobURL;
@@ -259,9 +260,7 @@ const generateHTMLPreview = async (lite) => {
     const iFrameWrapper = document.getElementById(elementId);
     iFrameWrapper.innerHTML = "";
     iFrameWrapper.appendChild(iframe);
-    status.htmlPreviewLoading = false;
   } catch (e) {
-    status.htmlPreviewLoading = false;
     console.log(e);
   }
 }
@@ -284,7 +283,7 @@ const downloadCrate = async () => {
     link.href = url;
     link.click();
     window.URL.revokeObjectURL(url);
-  }catch (e) {
+  } catch (e) {
     alert(`Error: ${JSON.stringify(e)}`);
   }
 }
@@ -456,7 +455,9 @@ const downloadCrate = async () => {
               </el-link>
             </el-row>
             <el-row class="flex-1 flex-col">
-              <div id="html_preview" v-loading="status.htmlPreviewLoading"></div>
+              <div v-loading="status.htmlPreviewLoading">
+                <div id="html_preview"></div>
+              </div>
             </el-row>
           </el-tab-pane>
           <el-tab-pane label="HTML Preview (lite)" name="html_lite">
@@ -474,8 +475,8 @@ const downloadCrate = async () => {
                 </el-icon>
               </el-link>
             </el-row>
-            <el-row class="flex-1 flex-col">
-              <div id="html_preview_lite" v-loading="status.htmlLitePreviewLoading"></div>
+            <el-row class="flex-1 flex-col" v-loading="status.htmlPreviewLoading">
+              <div id="html_preview_lite"></div>
             </el-row>
           </el-tab-pane>
         </el-tabs>
