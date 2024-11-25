@@ -228,14 +228,13 @@ const generateHTMLPreview = async (lite) => {
   console.log("generate preview");
   status.htmlPreviewLoading = true;
   try {
-    const crate = new ROCrate(store.crate, {array: true, link: true});
-    await crate.resolveContext();
     let content = '';
     let blobURL;
     if (lite) {
-      const crateLite = await roCrateToJSON(crate.toJSON(), default_layout);
+      const crateLite = await roCrateToJSON(store.crate, default_layout);
       content = renderTemplate(crateLite, template_lite, default_layout)
     } else {
+      const crate = new ROCrate(store.crate, {array: true, link: true});
       const preview = new Preview(crate);
       const templateParams = preview.templateParams();
       content = ejs.render(template, templateParams);
@@ -275,9 +274,9 @@ const fileUploaded = async (data) => {
   await setCrate({upload: data});
 }
 
-const downloadCrate = () => {
+const downloadCrate = async () => {
   try {
-    const content = JSON.stringify(explorer.crate, null, 2);
+    const content = JSON.stringify(store.crate, null, 2);
     let blob = new Blob([content], {type: 'application/json'});
     let url = window.URL.createObjectURL(blob);
     let link = document.createElement("a");
