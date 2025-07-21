@@ -15,9 +15,9 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
-    "crate-o": "^0.3.12",
+    "crate-o": "^0.3.24",
     "ejs": "^3.1.10",
-    "element-plus": "^2.7.5",
+    "element-plus": "^2.10.4",
     "json-editor-vue": "^0.15.1",
     "pinia": "^2.1.7",
     "ro-crate": "3.4.1",
