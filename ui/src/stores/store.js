@@ -9,7 +9,7 @@ export const useStore = defineStore('store', {
         examples: [],
         example: {},
         loading: false,
-        g_tag: 'G-DQL9BN6W1J'
+        g_tag: ''
     }),
     getters: {},
     actions: {
