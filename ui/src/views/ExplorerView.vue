@@ -13,7 +13,7 @@ import {
   Download
 } from '@element-plus/icons-vue'
 import {onMounted, onUpdated, reactive, ref, toRaw} from 'vue';
-import mode from 'ro-crate-modes/modes/base.json';
+import mode from 'ro-crate-modes/modes/default.json';
 import {ROCrate, validate as validateCrate} from "ro-crate";
 //import {Validator} from "ro-crate/lib/validator";
 import {Preview} from 'ro-crate-html';
