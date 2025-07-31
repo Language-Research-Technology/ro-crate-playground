@@ -11,13 +11,14 @@
     "test:e2e": "start-server-and-test preview http://localhost:4173 'cypress run --e2e'",
     "test:e2e:dev": "start-server-and-test 'vite dev --port 4173' http://localhost:4173 'cypress open --e2e'",
     "test:unit": "cypress run --component",
-    "test:unit:dev": "cypress open --component"
+    "test:unit:dev": "cypress open --component",
+    "serve": "npm run build && npm run preview"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "crate-o": "^0.3.24",
     "ejs": "^3.1.10",
-    "element-plus": "^2.7.5",
+    "element-plus": "^2.10.4",
     "json-editor-vue": "^0.15.1",
     "pinia": "^2.1.7",
     "ro-crate": "3.4.1",
