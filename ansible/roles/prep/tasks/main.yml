@@ -12,6 +12,8 @@
   apt:
     name:
       - apt-transport-https
+      - ca-certificates
+      - curl
       - gcc
       - g++
       - make
@@ -25,6 +27,59 @@
     state: present
   tags:
     - prereqs
+
+- name: Create Docker APT keyring directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+  tags:
+    - docker
+
+- name: Install Docker APT repository key
+  get_url:
+    url: https://download.docker.com/linux/debian/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+  tags:
+    - docker
+
+- name: Configure Docker APT repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+    filename: docker
+    state: present
+    update_cache: yes
+  tags:
+    - docker
+
+- name: Install Docker Engine and Compose
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+  tags:
+    - docker
+
+- name: Ensure Docker is enabled and started
+  service:
+    name: docker
+    enabled: yes
+    state: started
+  tags:
+    - docker
+
+- name: Add deployment user to the Docker group
+  user:
+    name: "{{ DATA_USER }}"
+    groups: docker
+    append: yes
+  tags:
+    - docker
 
 - name: Add github key to "{{ DATA_USER }}"
   become: true
@@ -67,6 +122,16 @@
     fstype: ext4
     opts: noatime
     state: mounted
+  tags:
+    - volume
+
+- name: Ensure application file storage exists
+  file:
+    path: "{{ TMP_DIR }}"
+    state: directory
+    owner: "{{ DATA_USER }}"
+    group: "{{ DATA_USER }}"
+    mode: "0755"
   tags:
     - volume
 

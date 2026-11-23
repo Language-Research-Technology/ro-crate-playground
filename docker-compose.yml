@@ -6,7 +6,6 @@ networks:
 volumes:
   caddy_data:
   caddy_config:
-  app_files:
 
 services:
   app:
@@ -23,7 +22,7 @@ services:
       - playground
     volumes:
       - ./app/configuration.json:/app/configuration.json:ro
-      - app_files:/opt/storage/files
+      - /opt/storage/files:/opt/storage/files
     command: npm run prod
 
   ui:

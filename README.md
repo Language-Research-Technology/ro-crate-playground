@@ -57,9 +57,6 @@ installed, and that DNS for `ro-crate.ldaca.edu.au` points to the host.
 ```bash
 ansible-playbook ansible/rocrate_playground.prep.yml \
   -i ansible/hosts/ro-crate.ldaca.edu.au.prod
-
-ansible-playbook ansible/rocrate_playground.app.yml \
-  -i ansible/hosts/ro-crate.ldaca.edu.au.prod
 ```
 
 Ports 80 and 443 must be available on the target host. No data migration is

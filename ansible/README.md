@@ -31,11 +31,6 @@ Prep
 ansible-playbook rocrate_playground.prep.yml -i hosts/ro-crate.ldaca.edu.au.prod
 ```
 
-Install docker
-```bash
-ansible-playbook rocrate_playground.docker.yml -i hosts/ro-crate.ldaca.edu.au.prod
-```
-
 Deploy the application. The repository Compose file starts Caddy,
 terminates HTTPS for `ro-crate.ldaca.edu.au`, and renews the certificate
 automatically. Ensure DNS points to the host and ports 80/443 are available.
