@@ -23,6 +23,7 @@ services:
     volumes:
       - ./app/configuration.json:/app/configuration.json:ro
       - /opt/storage/files:/opt/storage/files
+      - /opt/storage/example-crates:/opt/storage/example-crates:ro
     command: npm run prod
 
   ui:
