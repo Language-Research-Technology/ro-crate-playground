@@ -36,7 +36,9 @@ Install docker
 ansible-playbook rocrate_playground.docker.yml -i hosts/ro-crate.ldaca.edu.au.prod
 ```
 
-Install nginx
+Deploy the application. The repository Compose file starts Caddy,
+terminates HTTPS for `ro-crate.ldaca.edu.au`, and renews the certificate
+automatically. Ensure DNS points to the host and ports 80/443 are available.
 ```bash
-ansible-playbook rocrate_playground.nginx.yml -i hosts/ro-crate.ldaca.edu.au.prod
+ansible-playbook rocrate_playground.app.yml -i hosts/ro-crate.ldaca.edu.au.prod
 ```

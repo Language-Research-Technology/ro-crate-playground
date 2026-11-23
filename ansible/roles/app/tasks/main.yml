@@ -179,7 +179,7 @@
 - name: Tear down existing services
   become: true
   become_user: "{{ DATA_USER }}"
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ APP_DIR }}"
     state: absent
   register: output
@@ -197,7 +197,7 @@
 - name: Create and start services
   become: true
   become_user: "{{ DATA_USER }}"
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     build: yes
     project_src: "{{ APP_DIR }}"
     recreate: always

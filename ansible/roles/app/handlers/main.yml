@@ -1,17 +1,7 @@
 ---
 
-- name: restart-nginx
-  service: name=nginx state=restarted
-
-- name: validate-nginx-configuration
-  command: nginx -t -c /etc/nginx/nginx.conf
-  changed_when: False
-
-- name: reload-nginx
-  service: name=nginx state=reloaded
-
 - name: restart-app
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     build: no
     project_src: "{{ APP_DIR }}"
     recreate: always
@@ -19,7 +9,7 @@
   register: restart_app_output
 
 - name: restart-app-api
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     build: no
     project_src: "{{ APP_DIR }}"
     services:
@@ -33,7 +23,7 @@
     msg: "{{ restart_app_output }}"
 
 - name: restart-app
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     build: no
     project_src: "{{ APP_DIR }}"
     services:

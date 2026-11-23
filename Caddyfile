@@ -1,0 +1,11 @@
+ro-crate.ldaca.edu.au {
+    encode gzip
+
+    handle /app/* {
+        reverse_proxy app:8080
+    }
+
+    handle {
+        reverse_proxy ui:4173
+    }
+}

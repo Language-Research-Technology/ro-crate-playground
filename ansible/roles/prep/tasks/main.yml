@@ -18,18 +18,13 @@
       - lsof
       - gpg
       - git
-      - vim 
-      - pip
+      - vim
       - golang
       - screen
       - tree
     state: present
   tags:
     - prereqs
-
-- name: Install stormssh module
-  pip:
-    name: stormssh
 
 - name: Add github key to "{{ DATA_USER }}"
   become: true
@@ -41,24 +36,18 @@
   tags:
     - git
 
-- name: Add a host in the configuration
-  community.general.ssh_config:
-    host: "github.com"
-    identity_file: "{{ GITHUB_KEY_PATH }}"
-    state: present
-
-- name: Install the gpg key for nodejs LTS
-  apt_key:
-    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
-    state: present
+- name: Download the NodeSource LTS setup script
+  get_url:
+    url: https://deb.nodesource.com/setup_lts.x
+    dest: /tmp/nodesource_setup_lts.sh
+    mode: "0755"
   tags:
     - node
-    
-- name: Install the nodejs LTS repos
-  apt_repository:
-    repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
-    state: present
-    update_cache: yes
+
+- name: Configure the NodeSource LTS repository
+  command: /bin/bash /tmp/nodesource_setup_lts.sh
+  args:
+    creates: /etc/apt/sources.list.d/nodesource.sources
   tags:
     - node
 
@@ -66,6 +55,7 @@
   apt:
     name: nodejs
     state: latest
+    update_cache: yes
   tags:
     - node
     
